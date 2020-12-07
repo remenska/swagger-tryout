@@ -1,26 +1,14 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "description": "Documentation of REST API",
+    "description": "This document describes the iCAS Sellside API to place ads on iCAS.",
     "version": "1.0.0",
-    "title": "AMNext"
+    "title": "Admarkt Sellside API"
   },
   "externalDocs": {
     "description":"Get Auth Bearer token",
     "url":"https://www.api-test.dev/"
   },
-  "servers": [
-    {"url":"https://admarkt.demo.qa-mp.so/api/sellside"},
-    {"url":"www.mp.dev/api/sellside"},
-    {"url":"www.twhbe.dev/api/sellside"},
-    {"url":"www.kjca.dev/api/sellside"},
-    {"url":"www.ebayk.dev/api/sellside"},
-    {"url":"kjca.ci-qa.ams1.cloud/api/sellside"},
-    {"url":"mp.ci-qa.ams1.cloud/api/sellside"},
-    {"url":"twhbe.ci-qa.ams1.cloud/api/sellside"},
-    {"url":"ebayk.ci-qa.ams1.cloud/api/sellside"},
-    {"url":"https://admarkt.marktplaats.nl/api/sellside"}
-  ],
   "tags": [
     {
       "name": "Ads"
