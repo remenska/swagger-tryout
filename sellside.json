@@ -198,14 +198,16 @@
         "bearerFormat": "JWT",
         "description":"https://www.api-test.dev/"
       },
-      "Oauth2": {
+      "oAuth2ClientCredentials": {
         "type": "oauth2",
-        "flow": "accessCode",
-        "authorizationUrl": "https://admarkt.demo.qa-mp.so/accounts/oauth/authorize",
-        "tokenUrl": "https://admarkt.demo.qa-mp.so/accounts/oauth/token",
-        "scopes": {
-          "api_ro": "Grants read access",
-          "api_rw": "Grants write access"
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "/accounts/oauth/token",
+            "scopes": {
+              "api_ro": "Grants read access",
+              "api_rw": "Grants write access"
+            }
+          }
         }
       }
     }
