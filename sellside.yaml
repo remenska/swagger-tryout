@@ -7,7 +7,7 @@ externalDocs:
   description: Get Auth Bearer token
   url: 'https://www.api-test.dev/'
 servers:
-  - url: 'www.mp.dev/api/sellside'
+  - url: 'https://admarkt.demo.qa-mp.so/api/sellside'
   - url: 'www.twhbe.dev/api/sellside'
   - url: 'www.kjca.dev/api/sellside'
   - url: 'www.ebayk.dev/api/sellside'
@@ -39,7 +39,7 @@ paths:
         '200':
           description: Success
           content:
-            application/sellside.ad-amnext-v1+json; charset=UTF-8:
+            application/sellside.ad-v2+json; charset=UTF-8:
               schema:
                 example:
                   links:

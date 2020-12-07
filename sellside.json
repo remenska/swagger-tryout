@@ -1,0 +1,212 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Documentation of REST API",
+    "version": "1.0.0",
+    "title": "AMNext"
+  },
+  "externalDocs": {
+    "description":"Get Auth Bearer token",
+    "url":"https://www.api-test.dev/"
+  },
+  "servers": [
+    {"url":"https://admarkt.demo.qa-mp.so/api/sellside"},
+    {"url":"www.mp.dev/api/sellside"},
+    {"url":"www.twhbe.dev/api/sellside"},
+    {"url":"www.kjca.dev/api/sellside"},
+    {"url":"www.ebayk.dev/api/sellside"},
+    {"url":"kjca.ci-qa.ams1.cloud/api/sellside"},
+    {"url":"mp.ci-qa.ams1.cloud/api/sellside"},
+    {"url":"twhbe.ci-qa.ams1.cloud/api/sellside"},
+    {"url":"ebayk.ci-qa.ams1.cloud/api/sellside"},
+    {"url":"https://admarkt.marktplaats.nl/api/sellside"}
+  ],
+  "tags": [
+    {
+      "name": "Ads"
+    },
+    {
+      "name": "Campaigns"
+    },
+    {
+      "name": "Estimates"
+    }
+  ],
+  "paths": {
+    "/ad/{adid}": {
+      "get": {
+        "tags": [
+          "Ads",
+          "Campaigns"
+        ],
+        "summary": "Get Ad by ID",
+        "description": "Provide ad info",
+        "operationId": "adid",
+        "parameters": [
+          {
+            "name": "adid",
+            "in": "path",
+            "description": "ID of ad to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/sellside.ad-v3+json; charset=UTF-8": {
+                "schema": {
+                  "example":{
+
+                    "links": {
+                      "self": "/api/sellside/ad/1",
+                      "category": "/api/sellside/category/2768",
+                      "url": "https://example.nl/70x70/wit-met-stiksel?utm_source=marktplaats&utm_medium=referral"
+                    },
+                    "id": 1,
+                    "title": "Kussenhoes wit met stiksel 70 x 70 cm",
+                    "description": "Deze mooie kussenhoes is gemaakt van de beste kwaliteit stof en voorzien van een degelijke rits.",
+                    "categoryId": 2768,
+                    "priceType": "FIXED_PRICE",
+                    "price": 1722,
+                    "salutation": "COMPANY",
+                    "sellerName": "Test user 4",
+                    "phoneNumber": "0592407750",
+                    "allowContactByEmail": true,
+                    "status": "ACTIVE",
+                    "vendorId": "8228771",
+                    "dateCreated": "2018-07-26T14:56:51Z",
+                    "dateLastUpdated": "2018-07-26T14:56:51Z",
+                    "attributes": [
+                      {
+                        "key": "condition",
+                        "label": "Conditie",
+                        "locale": "nl_NL",
+                        "type": "STRING",
+                        "value": "Nieuw",
+                        "recognized": true
+                      }
+                    ],
+                    "images": [
+                      {
+                        "src": "https://example.nl/8228771/wit-met-stiksel.jpg",
+                        "status": "OK",
+                        "dateLastUpdated": "2018-07-26T14:56:51Z",
+                        "links": {
+                          "726x726": "//example.com/726.JPG",
+                          "64x64": "//example.com/64.JPG",
+                          "147x147": "//example.com/147.JPG",
+                          "358x358": "//example.com/358.JPG",
+                          "1024x1024": "//example.com/1024.JPG"
+                        }
+                      }
+                    ],
+                    "shippingOptions": []
+
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/sellside.error-v1+json; charset=UTF-8": {
+                "$ref": "#/components/schemas/AuthError"
+              }
+            }
+          },
+          "406": {
+            "description": "Not Acceptable",
+            "content": {
+              "application/sellside.error-v1+json; charset=UTF-8": {
+                "schema": {
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/sellside.error-v1+json; charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiResponseError": {
+        "type": "array",
+        "items": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          }
+        },
+        "example":[
+          {
+            "code": "1000",
+            "text":"internal error",
+            "msg": "The server encountered an error"
+          }
+        ]
+      },
+      "AuthError": {
+        "type": "array",
+        "items": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          }
+        },
+        "example":[
+          {
+            "code": 1009,
+            "text": "missing token",
+            "msg": "Authorization header is missing or in the wrong format",
+            "field": "token"
+          }
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description":"https://www.api-test.dev/"
+      }
+    }
+  }
+}
+
