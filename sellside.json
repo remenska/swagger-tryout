@@ -197,6 +197,16 @@
         "scheme": "bearer",
         "bearerFormat": "JWT",
         "description":"https://www.api-test.dev/"
+      },
+      "Oauth2": {
+        "type": "oauth2",
+        "flow": "accessCode",
+        "authorizationUrl": "https://admarkt.demo.qa-mp.so/accounts/oauth/authorize",
+        "tokenUrl": "https://admarkt.demo.qa-mp.so/accounts/oauth/token",
+        "scopes": {
+          "api_ro": "Grants read access",
+          "api_rw": "Grants write access"
+        }
       }
     }
   }
