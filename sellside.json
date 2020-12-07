@@ -9,6 +9,10 @@
     "description":"Get Auth Bearer token",
     "url":"https://www.api-test.dev/"
   },
+  "servers": [
+    {"url":"https://admarkt.demo.qa-mp.so/api/sellside"},
+    {"url":"https://admarkt.marktplaats.nl/api/sellside"}
+  ],
   "tags": [
     {
       "name": "Ads"
