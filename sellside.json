@@ -134,7 +134,8 @@
         },
         "security": [
           {
-            "bearerAuth": []
+            "bearerAuth": [],
+            "oAuth2ClientCredentials": ["api_ro", "api_rw"],
           }
         ]
       }
