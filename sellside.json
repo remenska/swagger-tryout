@@ -10,9 +10,10 @@
     "url":"https://www.api-test.dev/"
   },
   "servers": [
-    {"url":"http://www.mp.dev/api/sellside"},
-    {"url":"https://admarkt.demo.qa-mp.so/api/sellside"},
-    {"url":"https://admarkt.marktplaats.nl/api/sellside"}
+    {"url":"http://www.mp.dev/api/sellside", "description": "Local environment [MP]"},
+    {"url": "https://internet.mp.qa.icas.io", "description": "QA environment [MP]"},
+    {"url":"https://admarkt.demo.qa-mp.so/api/sellside", "description": "Pre-prod (demo) environment [MP]"},
+    {"url":"https://admarkt.marktplaats.nl/api/sellside", "description": "Production environment [MP]"}
   ],
   "tags": [
     {
@@ -208,8 +209,10 @@
             "refreshUrl": "/accounts/oauth/token",
             "tokenUrl": "/accounts/oauth/token",
             "scopes": {
-              "api_ro": "Grants read access",
-              "api_rw": "Grants write access"
+              "api_ro": "Grants API read access",
+              "api_rw": "Grants API write access",
+              "console_ro": "Grants Console read access",
+              "console_rw": "Grants Console write access"
             }
           }
         }
