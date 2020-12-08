@@ -135,7 +135,7 @@
         "security": [
           {
             "bearerAuth": [],
-            "oAuth2ClientCredentials": ["api_ro", "api_rw"],
+            "authorizationCode": ["api_ro", "api_rw"]
           }
         ]
       }
@@ -208,6 +208,18 @@
               "api_ro": "Grants read access",
               "api_rw": "Grants write access"
             }
+          },
+          "authorizationCode": {
+            "authorizationUrl": "/accounts/oauth/authorize",
+            "tokenUrl": "/accounts/oauth/token",
+            "scopes": {
+              "api_ro": "Grants read access",
+              "api_rw": "Grants write access"
+            },
+            "refreshUrl": "/accounts/oauth/token"
+          },
+          "implicit": {
+            "authorizationUrl": "/accounts/oauth/authorize"
           }
         }
       }
