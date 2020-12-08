@@ -10,6 +10,7 @@
     "url":"https://www.api-test.dev/"
   },
   "servers": [
+    {"url":"http://www.mp.dev/api/sellside"},
     {"url":"https://admarkt.demo.qa-mp.so/api/sellside"},
     {"url":"https://admarkt.marktplaats.nl/api/sellside"}
   ],
@@ -135,7 +136,7 @@
         "security": [
           {
             "bearerAuth": [],
-            "authorizationCode": ["api_ro", "api_rw"]
+            "oAuth2ClientCredentials": ["api_ro", "api_rw"]
           }
         ]
       }
@@ -202,24 +203,14 @@
       "oAuth2ClientCredentials": {
         "type": "oauth2",
         "flows": {
-          "clientCredentials": {
+          "authorizationCode": {
+            "authorizationUrl": "/accounts/oauth/authorize",
+            "refreshUrl": "/accounts/oauth/token",
             "tokenUrl": "/accounts/oauth/token",
             "scopes": {
               "api_ro": "Grants read access",
               "api_rw": "Grants write access"
             }
-          },
-          "authorizationCode": {
-            "authorizationUrl": "/accounts/oauth/authorize",
-            "tokenUrl": "/accounts/oauth/token",
-            "scopes": {
-              "api_ro": "Grants read access",
-              "api_rw": "Grants write access"
-            },
-            "refreshUrl": "/accounts/oauth/token"
-          },
-          "implicit": {
-            "authorizationUrl": "/accounts/oauth/authorize"
           }
         }
       }
