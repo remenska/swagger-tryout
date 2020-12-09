@@ -310,7 +310,8 @@
           "dateLastUpdated": {
             "type": "string",
             "format": "dateTime",
-            "example": "2018-07-26T14:56:51Z"
+            "example": "2018-07-26T14:56:51Z",
+            "readOnly": true
           },
           "links": {
             "type": "object",

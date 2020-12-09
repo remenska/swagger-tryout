@@ -1,39 +1,30 @@
----
 openapi: 3.0.0
 info:
   description: This document describes the iCAS Sellside API to place ads on iCAS.
   version: 1.0.0
   title: Admarkt Sellside API
-externalDocs:
-  description: Get Auth Bearer token
-  url: https://www.api-test.dev/
 servers:
-  - url: http://www.mp.dev/api/sellside
-    description: Local environment [MP]
-  - url: https://internet.mp.qa.icas.io
-    description: QA environment [MP]
-  - url: https://admarkt.demo.qa-mp.so/api/sellside
-    description: Pre-prod (demo) environment [MP]
-  - url: https://admarkt.marktplaats.nl/api/sellside
-    description: Production environment [MP]
+  - url: 'http://www.mp.dev/api/sellside'
+    description: 'Local environment [MP]'
+  - url: 'https://internet.mp.qa.icas.io'
+    description: 'QA environment [MP]'
+  - url: 'https://admarkt.demo.qa-mp.so/api/sellside'
+    description: 'Pre-prod (demo) environment [MP]'
+  - url: 'https://admarkt.marktplaats.nl/api/sellside'
+    description: 'Production environment [MP]'
 tags:
   - name: Ads
   - name: Campaigns
-  - name: Estimates
+  - name: Categories
+  - name: Reporting
 paths:
-  "/ad/{adid}":
+  '/ad/{adid}':
     get:
       tags:
         - Ads
-        - Campaigns
-      summary: Get Ad by ID
-      description: Version 3 works just like v2, except the response body contains
-        an additional field statusReasons. This field is currently used to indicate
-        the reason why a certain ad might be set to a certain status by our system.
-        This could be due to, for example, an action (like new website domain approval)
-        pending from the user, which is a mechanism used to prevent account takeovers
-        from setting the website URL to a malicious one.
-      operationId: adid
+      summary: Get ad by ID
+      description: 'Version 3 works just like v2, except the response body contains an additional field statusReasons. This field is currently used to indicate the reason why a certain ad might be set to a certain status by our system. This could be due to, for example, an action (like new website domain approval) pending from the user, which is a mechanism used to prevent account takeovers from setting the website URL to a malicious one.'
+      operationId: getAdById
       parameters:
         - name: adid
           in: path
@@ -42,71 +33,139 @@ paths:
           schema:
             type: integer
             format: int64
+            example: 1235
       responses:
         '200':
           description: Success
+          headers:
+            Oauth-Scope:
+              description: Oauth scopes that are available with the supplied token
+              schema:
+                type: string
+                example: api_ro api_rw
+            Oauth-Scope-Required:
+              description: The required permission for this particular call
+              schema:
+                type: string
+                example: get_ad
           content:
             application/sellside.ad-v2+json:
               schema:
-                "$ref": "./components/schemas/ad.yaml#/User"
+                $ref: '#/components/schemas/AdV2'
             application/sellside.ad-v3+json:
               schema:
-                "$ref": "./components/schemas/ad.yaml#/User"
-              example:
-                links:
-                  self: "/api/sellside/ad/1"
-                  category: "/api/sellside/category/2768"
-                  url: https://example.nl/70x70/wit-met-stiksel?utm_source=marktplaats&utm_medium=referral
-                id: 1
-                title: Kussenhoes wit met stiksel 70 x 70 cm
-                description: Deze mooie kussenhoes is gemaakt van de beste kwaliteit
-                  stof en voorzien van een degelijke rits.
-                categoryId: 2768
-                priceType: FIXED_PRICE
-                price: 1722
-                salutation: COMPANY
-                sellerName: Test user 4
-                phoneNumber: '0592407750'
-                allowContactByEmail: true
-                status: ACTIVE
-                vendorId: '8228771'
-                dateCreated: '2018-07-26T14:56:51Z'
-                dateLastUpdated: '2018-07-26T14:56:51Z'
-                attributes:
-                  - key: condition
-                    label: Conditie
-                    locale: nl_NL
-                    type: STRING
-                    value: Nieuw
-                    recognized: true
-                images:
-                  - src: https://example.nl/8228771/wit-met-stiksel.jpg
-                    status: OK
-                    dateLastUpdated: '2018-07-26T14:56:51Z'
-                    links:
-                      726x726: "//example.com/726.JPG"
-                      64x64: "//example.com/64.JPG"
-                      147x147: "//example.com/147.JPG"
-                      358x358: "//example.com/358.JPG"
-                      1024x1024: "//example.com/1024.JPG"
-                shippingOptions: []
+                $ref: '#/components/schemas/AdV3'
         '401':
           description: Unauthorized
           content:
             application/sellside.error-v1+json; charset=UTF-8:
               schema:
-                "$ref": "#/components/schemas/AuthError"
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiResponseError'
+              example:
+                - code: 1009
+                  text: missing token
+                  msg: Authorization header is missing or in the wrong format
+        '404':
+          description: Not Found
+          content:
+            application/sellside.error-v1+json; charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiResponseError'
+              example:
+                - code: 1004
+                  text: not found
+                  msg: The entity was not found
         '406':
           description: Not Acceptable
           content:
-            application/sellside.error-v1+json; charset=UTF-8:
-              schema: {}
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotSupportedError'
         '500':
           description: Server Error
           content:
             application/sellside.error-v1+json; charset=UTF-8:
               schema:
-                "$ref": "#/components/schemas/ApiResponseError"
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiResponseError'
+              example:
+                - code: 1000
+                  text: internal error
+                  msg: The server encountered an error
+      security:
+        - bearerAuth: []
+          oAuth2ClientCredentials:
+            - console_ro
+            - api_ro
+  /ad:
+    get:
+      tags:
+        - Ads
+      summary: Get a list of ads with filter criteria
+      description: returns a list of ads for the current user and the total size of the result set matching the filter criteria.
+      operationId: getListOfAdsWithFilters
+      parameters:
+        - name: adid
+          in: query
+          description: ID of ad to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1235
+      responses:
+        '200':
+          description: Success
+          headers:
+            Oauth-Scope:
+              description: Oauth scopes that are available with the supplied token
+              schema:
+                type: string
+                example: api_ro api_rw
+            Oauth-Scope-Required:
+              description: The required permission for this particular call
+              schema:
+                type: string
+                example: get_ad
+          content:
+            application/sellside.ad.list-v4+json:
+              schema:
+                $ref: '#/components/schemas/AdList'
+        '401':
+          description: Unauthorized
+          content:
+            application/sellside.error-v1+json; charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiResponseError'
+              example:
+                - code: 1009
+                  text: missing token
+                  msg: Authorization header is missing or in the wrong format
+        '406':
+          description: Not Acceptable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotSupportedError'
+        '500':
+          description: Server Error
+          content:
+            application/sellside.error-v1+json; charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiResponseError'
+              example:
+                - code: 1000
+                  text: internal error
+                  msg: The server encountered an error
       security:
         - bearerAuth: []
           oAuth2ClientCredentials:
@@ -114,50 +173,286 @@ paths:
             - api_ro
 components:
   schemas:
+    Image:
+      description: When an ad is created or updated the caller provides the images as a list of image objects which contain only the source url. The images are then downloaded by iCAS and the server adds additional fields which describe the status of the download. The images will be shown in the order they are provided. The first image is shown in search results and it is the main image on the item page.
+      properties:
+        src:
+          type: string
+          description: 'The source URL of the image, where it will be downloaded from'
+          format: base64url
+          example: 'https://example.nl/8228771/wit-met-stiksel.jpg'
+          required: 'true'
+        status:
+          type: string
+          enum:
+            - OK
+            - PENDING
+            - ERROR
+          readOnly: true
+          example: OK
+          description: 'The server adds a status field indicating the status of the download. The status is either OK (image was successfully downloaded), PENDING (image is scheduled to be downloaded) or ERROR if the image was not found or invalid.'
+        dateLastUpdated:
+          type: string
+          format: dateTime
+          example: '2018-07-26T14:56:51Z'
+          readOnly: true
+        links:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            50x70: //i.ebay.com/image23434_abc.jpg
+            120x180: //i.marktplaats.nl/image23434_def.jpg
+    AdV2:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          required: true
+          example: 1235
+          minimum: 0
+          description: 'Unique reference to the iCAS ad, needs to be omitted in a POST or PUT action.'
+        title:
+          type: string
+          description: 'Any string, with minimum and maximum length determined by the category. URLs are not allowed as part of the title.'
+          required: true
+          example: Buy the new iPhone here
+        description:
+          type: string
+          description: 'The description field of the ad. Any string, with minimum and maximum length determined by the category. URLs are not allowed as part of the title.'
+          required: true
+          example: 'Extra sale, buy the new iPhone today and save!'
+        categoryId:
+          description: The category in which the ad is placed. Each ad belongs to one and only one region and region of an ad cannot be updated. This field can only set once during creation of an ad.
+          type: integer
+          format: int64
+          required: true
+          example: 2353465
+          minimum: 0
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+        externalId:
+          type: string
+          maxLength: 64
+          description: 'Any non-empty string with a maximum length of 64 characters. When fetching an existing ad which does not have an externalId, the field is empty or omitted.'
+          example: OURSHOP-1423453-34
+          deprecated: true
+        status:
+          type: string
+          required: true
+          description: 'The user can set only one of the user controlled states ACTIVE, PAUSED or DELETED.'
+          enum:
+            - ACTIVE
+            - PAUSED
+            - BUDGET_REACHED
+            - DAILY_LIMIT_REACHED
+            - DELETED
+            - DELETED_BY_CS
+            - SUSPENDED_BY_CS
+          example: ACTIVE
+        priceType:
+          type: string
+          required: true
+          enum:
+            - BIDDING
+            - BIDDING_FROM
+            - FIXED_PRICE
+            - FREE
+            - NEGOTIABLE
+            - SEE_DESCRIPTION
+            - SWAP
+            - CREDIBLE_BID
+            - ON_DEMAND
+          description: Each ad has a price type which determines the type of transaction the seller would like to perform. Must be a valid price type identifier from the list.
+          example: FIXED_PRICE
+        currency:
+          type: string
+          description: The 3 letter ISO-4217 currency code.
+          example: EUR
+          readOnly: true
+          format: iso-4217
+        priceUnit:
+          type: string
+          description: Must be a valid price unit identifier from the list of available price units of the category
+          example: per_sqm
+        price:
+          type: integer
+          format: int64
+          description: 'The meaning of the value depends on priceType. If it is FIXED_PRICE or BIDDING_FROM then price has to be greater than 0. '
+          maximum: 100000000
+        cpc:
+          type: integer
+          format: int64
+          description: The cost per click as defined by the seller. The minimum and maximum values depend on the category.
+          required: true
+          example: 15
+          minimum: 1
+        totalBudget:
+          type: integer
+          format: int64
+          description: 'The total budget for the ad, in cents. The minimum and maximum values depend on the category. When an ad is updated this value cannot be lower than the spentBudget. If the total budget is not returned with the ad, it means there is an unlimited total budget.'
+          example: 5000
+        dailyBudget:
+          type: integer
+          format: int64
+          nullable: true
+          description: The daily budget for the ad. When this value is reached the ad will be paused for the rest of the day. The minimum value depends on the category. Maximum value cannot be higher than the totalBudget
+          example: 50000
+    AdV3:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          required: true
+          example: 1235
+          minimum: 0
+          description: 'Unique reference to the iCAS ad, needs to be omitted in a POST or PUT action.'
+        title:
+          type: string
+          description: 'Any string, with minimum and maximum length determined by the category. URLs are not allowed as part of the title.'
+          required: true
+          example: Buy the new iPhone here
+        description:
+          type: string
+          description: 'The description field of the ad. Any string, with minimum and maximum length determined by the category. URLs are not allowed as part of the title.'
+          required: true
+          example: 'Extra sale, buy the new iPhone today and save!'
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+        categoryId:
+          description: The category in which the ad is placed. Each ad belongs to one and only one region and region of an ad cannot be updated. This field can only set once during creation of an ad.
+          type: integer
+          format: int64
+          required: true
+          example: 2353465
+          minimum: 0
+        externalId:
+          type: string
+          maxLength: 64
+          description: 'Any non-empty string with a maximum length of 64 characters. When fetching an existing ad which does not have an externalId, the field is empty or omitted.'
+          example: OURSHOP-1423453-34
+          deprecated: true
+        status:
+          type: string
+          required: true
+          description: 'The user can set only one of the user controlled states ACTIVE, PAUSED or DELETED.'
+          enum:
+            - ACTIVE
+            - PAUSED
+            - BUDGET_REACHED
+            - DAILY_LIMIT_REACHED
+            - DELETED
+            - DELETED_BY_CS
+            - SUSPENDED_BY_CS
+          example: ACTIVE
+        statusReasons:
+          type: array
+          description: 'Currently used to indicate the reason why a certain ad might be set to a certain status by our system. This could be due to, for example, an action (like new website domain approval) pending from the user, which is a mechanism used to prevent account takeovers from setting the website URL to a malicious one.'
+          items:
+            type: string
+          minItems: 0
+          example:
+            - DOMAIN_PENDING
+        priceType:
+          type: string
+          required: true
+          enum:
+            - BIDDING
+            - BIDDING_FROM
+            - FIXED_PRICE
+            - FREE
+            - NEGOTIABLE
+            - SEE_DESCRIPTION
+            - SWAP
+            - CREDIBLE_BID
+            - ON_DEMAND
+          description: Each ad has a price type which determines the type of transaction the seller would like to perform. Must be a valid price type identifier from the list.
+          example: FIXED_PRICE
+        currency:
+          type: string
+          description: The 3 letter ISO-4217 currency code.
+          example: EUR
+          readOnly: true
+          format: iso-4217
+        priceUnit:
+          type: string
+          description: Must be a valid price unit identifier from the list of available price units of the category
+          example: per_sqm
+        price:
+          type: integer
+          format: int64
+          description: 'The meaning of the value depends on priceType. If it is FIXED_PRICE or BIDDING_FROM then price has to be greater than 0. '
+          maximum: 100000000
+        cpc:
+          type: integer
+          format: int64
+          description: The cost per click as defined by the seller. The minimum and maximum values depend on the category.
+          required: true
+          example: 15
+          minimum: 1
+        totalBudget:
+          type: integer
+          format: int64
+          description: 'The total budget for the ad, in cents. The minimum and maximum values depend on the category. When an ad is updated this value cannot be lower than the spentBudget. If the total budget is not returned with the ad, it means there is an unlimited total budget.'
+          example: 5000
+        dailyBudget:
+          type: integer
+          format: int64
+          nullable: true
+          description: The daily budget for the ad. When this value is reached the ad will be paused for the rest of the day. The minimum value depends on the category. Maximum value cannot be higher than the totalBudget
+          example: 50000
+    AdList:
+      type: object
+      properties:
+        ads:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdV3'
+        count:
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 1
+    NotSupportedError:
+      type: string
+      example: Response type text/xml is not supported
     ApiResponseError:
-      type: array
-      items:
+      type: object
+      properties:
         code:
           type: integer
           format: int32
+          example: 1009
         text:
           type: string
+          example: internal error
         msg:
           type: string
+          example: The server encountered an error
       example:
-        - code: '1000'
-          text: internal error
-          msg: The server encountered an error
-    AuthError:
-      type: array
-      items:
-        code:
-          type: integer
-          format: int32
-        text:
-          type: string
-        msg:
-          type: string
-        field:
-          type: string
-      example:
-        - code: 1009
-          text: missing token
-          msg: Authorization header is missing or in the wrong format
-          field: token
+        code: '1000'
+        text: internal error
+        msg: The server encountered an error
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: https://www.api-test.dev/
+      description: 'https://www.api-test.dev/'
     oAuth2ClientCredentials:
       type: oauth2
       flows:
         authorizationCode:
-          authorizationUrl: "/accounts/oauth/authorize"
-          refreshUrl: "/accounts/oauth/token"
-          tokenUrl: "/accounts/oauth/token"
+          authorizationUrl: /accounts/oauth/authorize
+          refreshUrl: /accounts/oauth/token
+          tokenUrl: /accounts/oauth/token
           scopes:
             api_ro: Grants API read access
             api_rw: Grants API write access
