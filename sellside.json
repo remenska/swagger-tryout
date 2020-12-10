@@ -500,6 +500,29 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "content-type: application/json; charset=utf-8": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiResponseError"
+                  },
+                  "example":
+                    [
+                      {
+                        "code": 2034,
+                        "text": "campaign already exists",
+                        "msg": "Campaign can only be created once for the same user",
+                        "field": "campaign",
+                        "arg": ""
+                      }
+                    ]
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
