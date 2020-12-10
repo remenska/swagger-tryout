@@ -196,13 +196,13 @@
           "content": {
             "application/sellside.ad-v3+json; charset=utf-8": {
               "schema": {
-                "$ref": "#/components/schemas/AdV3"
-              },
+                "$ref": "#/components/schemas/AdV2"
+              }
             },
             "application/sellside.ad-v2+json; charset=utf-8": {
               "schema": {
                 "$ref": "#/components/schemas/AdV2"
-              },
+              }
             }
           }
         },
@@ -455,7 +455,7 @@
           }
         ]
       }
-    },
+    }
   },
   "components": {
     "schemas": {
