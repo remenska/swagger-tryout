@@ -523,7 +523,7 @@
           "400": {
             "description": "Validation error",
             "content": {
-              "content-type: application/json; charset=utf-8": {
+              "application/json; charset=utf-8": {
                 "schema": {
                   "type": "array",
                   "items": {
@@ -566,7 +566,7 @@
           "406": {
             "description": "Not Acceptable",
             "content": {
-              "content-type: application/json; charset=utf-8": {
+              "application/json; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/NotSupportedError"
                 }
