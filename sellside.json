@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "description": "This document describes the iCAS Sellside API to place ads on iCAS.",
-    "version": "1.0.0",
+    "version": "0.119",
     "title": "Admarkt Sellside API"
   },
   "servers": [
@@ -499,8 +499,175 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/sellside.error-v1+json; charset=UTF-8": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiResponseError"
+                  }
+                },
+                "example": [
+                  {
+                    "code": 1009,
+                    "text": "missing token",
+                    "msg": "Authorization header is missing or in the wrong format"
+                  }
+                ]
+              }
+            }
+          },
+          "406": {
+            "description": "Not Acceptable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotSupportedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/sellside.error-v1+json; charset=UTF-8": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiResponseError"
+                  }
+                },
+                "example": [
+                  {
+                    "code": 1000,
+                    "text": "internal error",
+                    "msg": "The server encountered an error"
+                  }
+                ]
+              }
+            }
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": [],
+            "oAuth2ClientCredentials": [
+              "console_rw",
+              "api_rw"
+            ]
+          }
+        ]
+      }
+    },
+    "/campaign/byVendor/{vendorId}": {
+      "get": {
+        "tags": [
+          "Campaigns"
+        ],
+        "summary": "Returns a single campaign with the given vendorId.",
+        "description": "If the campaign does not exist or does not belong to the user the server returns 404 Not Found. If the vendorId is bigger than 64 characters the server returns 400 Bad Request. The vendorId is unique for a user; It is not possible for a single user to create multiple campaigns with the same vendorId (even if other campaigns are in status DELETED)",
+        "operationId": "getCampaignByVendorId",
+        "parameters": [
+          {
+            "name": "vendorId",
+            "in": "query",
+            "description": "Case-insensitive filter for a keyword in the title; will include only ads which contain the given keyword in their title.",
+            "schema": {
+              "type": "string",
+              "example": "my-christmas-campaign-2020"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Oauth-Scope": {
+                "description": "Oauth scopes that are available with the supplied token",
+                "schema": {
+                  "type": "string",
+                  "example": "api_ro api_rw"
+                }
+              },
+              "Oauth-Scope-Required": {
+                "description": "The required permission for this particular call",
+                "schema": {
+                  "type": "string",
+                  "example": "post_campaign"
+                }
+              }
+            },
+            "content": {
+              "application/sellside.campaign-v2+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignV2"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/sellside.error-v1+json; charset=UTF-8": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiResponseError"
+                  }
+                },
+                "example": [
+                  {
+                    "code": 1009,
+                    "text": "missing token",
+                    "msg": "Authorization header is missing or in the wrong format"
+                  }
+                ]
+              }
+            }
+          },
+          "406": {
+            "description": "Not Acceptable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotSupportedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/sellside.error-v1+json; charset=UTF-8": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiResponseError"
+                  }
+                },
+                "example": [
+                  {
+                    "code": 1000,
+                    "text": "internal error",
+                    "msg": "The server encountered an error"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [],
+            "oAuth2ClientCredentials": [
+              "console_ro",
+              "api_ro"
+            ]
+          }
+        ]
       }
     }
   },
@@ -1463,7 +1630,7 @@
             "$ref": "#components/schemas/CampaignBudgets"
           },
           "targeting": {
-            "description": "A Campaign Targeting Object, containing the targeting settings for this campaign. The default value is an empty targeting, indicating that the targeting is nationwide (no limitations).",
+            "description": "A Campaign Targeting Object, containing the targeting settings for this campaign. The default value is an empty targeting, indicating that the targeting is nationwide (no limitations). Geo-circles and regions cannot and should not be used in combination on the same campaign. This is currently not supported.",
             "oneOf": [
               {
                 "$ref": "#/components/schemas/GeoTargeting"
