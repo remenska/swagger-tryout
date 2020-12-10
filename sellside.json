@@ -546,7 +546,7 @@
           "406": {
             "description": "Not Acceptable",
             "content": {
-              "application/json": {
+              "content-type: application/json; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/NotSupportedError"
                 }
