@@ -498,6 +498,14 @@
                   "$ref": "#/components/schemas/CampaignV2"
                 }
               }
+            },
+            "links": {
+              "vendorIdLink": {
+                "operationId": "getCampaignByVendorId",
+                "parameters": {
+                  "vendorId": "$response.body#/vendorId"
+                }
+              }
             }
           },
           "400": {

@@ -307,6 +307,11 @@ paths:
             application/sellside.campaign-v2+json:
               schema:
                 $ref: '#/components/schemas/CampaignV2'
+          links:
+            vendorIdLink:
+              operationId: getCampaignByVendorId
+              parameters:
+                vendorId: '$response.body#/vendorId'
         '400':
           description: Validation error
           content:
@@ -336,7 +341,7 @@ paths:
         '406':
           description: Not Acceptable
           content:
-            application/json:
+            'content-type: application/json; charset=utf-8':
               schema:
                 $ref: '#/components/schemas/NotSupportedError'
         '500':
