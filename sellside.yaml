@@ -18,7 +18,7 @@ tags:
   - name: Categories
   - name: Reporting
 paths:
-  '/ad/{adid}':
+  '/ad/{adId}':
     get:
       tags:
         - Ads
@@ -27,7 +27,7 @@ paths:
       operationId: getAdById
       parameters:
         - name: adId
-          in: query
+          in: path
           description: ID of ad to return
           required: true
           schema:
@@ -110,7 +110,7 @@ paths:
       operationId: updateAdById
       parameters:
         - name: adId
-          in: query
+          in: path
           description: ID of ad to return
           required: true
           schema:
@@ -222,7 +222,7 @@ paths:
           in: query
           description: Orders the result set by the given field. Default value is DATE_CREATED.
           schema:
-            $ref: '#components/schemas/OrderBy'
+            $ref: '#/components/schemas/OrderBy'
           example: DATE_CREATED
       responses:
         '200':
@@ -288,7 +288,7 @@ paths:
         content:
           application/sellside.campaign-v2+json:
             schema:
-              $ref: '#components/schemas/CampaignV2'
+              $ref: '#/components/schemas/CampaignV2'
       responses:
         '201':
           description: Campaign created
@@ -307,6 +307,20 @@ paths:
             application/sellside.campaign-v2+json:
               schema:
                 $ref: '#/components/schemas/CampaignV2'
+        '400':
+          description: Validation error
+          content:
+            'content-type: application/json; charset=utf-8':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiResponseError'
+                example:
+                  - code: 2034
+                    text: campaign already exists
+                    msg: Campaign can only be created once for the same user
+                    field: campaign
+                    arg: ''
         '401':
           description: Unauthorized
           content:
@@ -351,11 +365,12 @@ paths:
       operationId: getCampaignByVendorId
       parameters:
         - name: vendorId
-          in: query
+          in: path
           description: Case-insensitive filter for a keyword in the title; will include only ads which contain the given keyword in their title.
           schema:
             type: string
             example: my-christmas-campaign-2020
+          required: true
       responses:
         '200':
           description: Success
@@ -1088,11 +1103,11 @@ components:
       description: 'An object containing the current budget limits and spent for this campaign. The unit for limit and spent is cents. The default limit values are set to -1 (Unlimited). If the campaign is DELETED, no budgets are shown.'
       properties:
         daily:
-          $ref: '#components/schemas/DailyBudget'
+          $ref: '#/components/schemas/DailyBudget'
         monthly:
-          $ref: '#components/schemas/MonthlyBudget'
+          $ref: '#/components/schemas/MonthlyBudget'
         total:
-          $ref: '#components/schemas/TotalBudget'
+          $ref: '#/components/schemas/TotalBudget'
       example:
         daily:
           limit: 120
@@ -1170,7 +1185,7 @@ components:
           description: 'Any non-empty string, unique per customer. Can either be set when creating a campaign or when updating an existing one. However, once set, it can no longer be modified. When fetching an existing campaign which does not have a vendorId, the field is omitted.'
           example: vendor1245-1234
         budgets:
-          $ref: '#components/schemas/CampaignBudgets'
+          $ref: '#/components/schemas/CampaignBudgets'
         targeting:
           description: 'A Campaign Targeting Object, containing the targeting settings for this campaign. The default value is an empty targeting, indicating that the targeting is nationwide (no limitations). Geo-circles and regions cannot and should not be used in combination on the same campaign. This is currently not supported.'
           oneOf:
