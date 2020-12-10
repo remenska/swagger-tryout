@@ -277,7 +277,7 @@ paths:
           oAuth2ClientCredentials:
             - console_ro
             - api_ro
-  /campaign:
+  /campaign/:
     post:
       tags:
         - Campaigns
