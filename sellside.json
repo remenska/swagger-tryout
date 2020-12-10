@@ -484,6 +484,7 @@
             "type": "string",
             "format": "dateTime",
             "example": "2018-07-26T14:56:51Z",
+            "description": "The ISO 8601 UTC date and time the ad was last updated.",
             "readOnly": true
           },
           "links": {
@@ -630,7 +631,7 @@
       "AdStatus": {
         "type": "string",
         "required": true,
-        "description": "The user can set only one of the user controlled states ACTIVE, PAUSED or DELETED.",
+        "description": "The current ad status. The user can set only one of the user controlled states ACTIVE, PAUSED or DELETED.",
         "enum": [
           "ACTIVE",
           "PAUSED",
@@ -932,7 +933,7 @@
             "required": true,
             "example": 1235,
             "minimum": 0,
-            "description": "Unique reference to the iCAS ad, needs to be omitted in a POST or PUT action."
+            "description": "Unique reference to the iCAS ad, needs to be omitted in a POST action."
           },
           "title": {
             "type": "string",
@@ -1214,6 +1215,162 @@
             "minimum": 0,
             "readOnly": true,
             "example": 1
+          }
+        }
+      },
+      "CampaignStatus": {
+        "type": "string",
+        "required": true,
+        "description": "The current campaign status. The user can set only one of the user controlled states ACTIVE, PAUSED or DELETED.",
+        "enum": [
+          "ACTIVE",
+          "PAUSED",
+          "BUDGET_REACHED",
+          "DELETED"
+        ],
+        "example": "ACTIVE"
+      },
+      "DailyBudget": {
+        "type": "object",
+        "description": "The maximum amount (in cents) that a campaign can spend per day (limit), and the current-day spent. The spent amount value will be reset at midnight every day. If not set, the limit will be shown as -1 (Unlimited).",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int64",
+            "example": 120,
+            "description": "The daily budget limit, in cents.",
+            "required": true
+          },
+          "spent": {
+            "type": "integer",
+            "format": "int64",
+            "example": 120,
+            "description": "The current spent, in cents.",
+            "readOnly": true
+          }
+        },
+        "example": {
+          "limit": 120,
+          "spent": 20
+        }
+      },
+      "MonthlyBudget": {
+        "type": "object",
+        "description": "The maximum amount (in cents) that a campaign can spend per calendar month (limit), and the current-month spent. The spent amount value will be reset at midnight every 1st of the month. If not set, the limit will be shown as -1 (Unlimited).",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int64",
+            "example": 120,
+            "description": "The monthly budget limit, in cents.",
+            "required": true
+          },
+          "spent": {
+            "type": "integer",
+            "format": "int64",
+            "example": 120,
+            "description": "The current spent, in cents.",
+            "readOnly": true
+          }
+        },
+        "example": {
+          "limit": 1000,
+          "spent": 30
+        }
+      },
+      "TotalBudget": {
+        "type": "object",
+        "description": "The maximum amount (in cents) that a campaign can spend in its lifetime, and the current total spent. The spent value will never be reset. If not set, the limit will be shown as -1 (Unlimited).",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int64",
+            "example": 120,
+            "description": "The total budget limit, in cents.",
+            "required": true
+          },
+          "spent": {
+            "type": "integer",
+            "format": "int64",
+            "example": 120,
+            "description": "The total spent, in cents.",
+            "readOnly": true
+          }
+        },
+        "example": {
+          "limit": -1,
+          "spent": 30
+        }
+      },
+      "CampaignBudgets": {
+        "type": "object",
+        "description": "An object containing the current budget limits and spent for this campaign. The unit for limit and spent is cents. The default limit values are set to -1 (Unlimited). If the campaign is DELETED, no budgets are shown.",
+        "properties": {
+          "daily": {
+            "$ref": "#components/schemas/DailyBudget"
+          },
+          "monthly": {
+            "$ref": "#components/schemas/MonthlyBudget"
+          },
+          "total": {
+            "$ref": "#components/schemas/TotalBudget"
+          }
+        },
+        "example": {
+          "daily": {
+            "limit": 120,
+            "spent": 20
+          },
+          "monthly": {
+            "limit": 1000,
+            "spent": 30
+          },
+          "total": {
+            "limit": -1,
+            "spent": 30
+          }
+        }
+      },
+      "Campaign": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1235,
+            "minimum": 0,
+            "description": "Unique reference to the iCAS campaign, needs to be omitted in a POST action."
+          },
+          "title": {
+            "type": "string",
+            "example": "My awesome campaign",
+            "description": "A description of your campaign. Only visible on your dashboard, it will never be shown to buyers.",
+            "maxLength": 255
+          },
+          "dateCreated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The ISO 8601 UTC date and time the campaign was created.",
+            "readOnly": true,
+            "example": "2019-04-18T13:55:10Z"
+          },
+          "dateLastUpdated": {
+            "type": "string",
+            "format": "dateTime",
+            "example": "2018-07-26T14:56:51Z",
+            "readOnly": true,
+            "description": "The ISO 8601 UTC date and time the campaign was last updated."
+          },
+          "status": {
+            "$ref": "#/components/schemas/CampaignStatus"
+          },
+          "vendorId": {
+            "type": "string",
+            "description": "Any non-empty string, unique per customer. Can either be set when creating a campaign or when updating an existing one. However, once set, it can no longer be modified. When fetching an existing campaign which does not have a vendorId, the field is omitted.",
+            "example": "vendor1245-1234"
+          },
+          "budgets": {
+            "$ref": "#components/schemas/CampaignBudgets"
           }
         }
       },
