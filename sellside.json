@@ -455,6 +455,53 @@
           }
         ]
       }
+    },
+    "/campaign": {
+      "post": {
+        "tags": [
+          "Campaigns"
+        ],
+        "summary": "Creates a new campaign for the user",
+        "description": "Creates a new campaign for the user. If successful, it returns an object representing the campaign, with default values on certain fields, if not provided. A minimum payload is an empty JSON, as none of the fields are mandatory.",
+        "operationId": "postCampaignV2",
+        "requestBody": {
+          "content": {
+            "application/sellside.campaign-v2+json": {
+              "schema": {
+                "$ref": "#components/schemas/CampaignV2"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Campaign created",
+            "headers": {
+              "Oauth-Scope": {
+                "description": "Oauth scopes that are available with the supplied token",
+                "schema": {
+                  "type": "string",
+                  "example": "api_ro api_rw"
+                }
+              },
+              "Oauth-Scope-Required": {
+                "description": "The required permission for this particular call",
+                "schema": {
+                  "type": "string",
+                  "example": "post_campaign"
+                }
+              }
+            },
+            "content": {
+              "application/sellside.campaign-v2+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignV2"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1331,7 +1378,50 @@
           }
         }
       },
-      "Campaign": {
+      "GeoTargeting": {
+        "description": "Geo targeting allows you to specify one or more (circular) areas in the targeting criteria of a campaign to have the ads of that campaign only be shown to buyers located in any of the geographical areas specified.",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "lat": {
+              "type": "number",
+              "format": "double",
+              "example": 1.2345,
+              "description": "Latitude of the center-point of the circular area for geo-targeting",
+              "minimum": -90,
+              "maximum": 90
+            },
+            "lon": {
+              "type": "number",
+              "format": "double",
+              "example": 123.456,
+              "description": "Longitude of the center-point of the circular area for geo-targeting",
+              "minimum": -180,
+              "maximum": 180
+            },
+            "radius": {
+              "description": "Radius (in km) of the circular area for geo-targeting",
+              "type": "integer",
+              "format": "int64",
+              "example": 10
+            }
+          }
+        }
+      },
+      "RegionTargeting": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "description": "A list of valid regionIds from the Regions taxonomy. Default is empty array or [0], either of which implies nationwide targeting (no targeting restrictions).",
+        "example": [
+          12300,
+          1000134
+        ]
+      },
+      "CampaignV2": {
         "type": "object",
         "properties": {
           "id": {
@@ -1371,6 +1461,17 @@
           },
           "budgets": {
             "$ref": "#components/schemas/CampaignBudgets"
+          },
+          "targeting": {
+            "description": "A Campaign Targeting Object, containing the targeting settings for this campaign. The default value is an empty targeting, indicating that the targeting is nationwide (no limitations).",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GeoTargeting"
+              },
+              {
+                "$ref": "#/components/schemas/RegionTargeting"
+              }
+            ]
           }
         }
       },
