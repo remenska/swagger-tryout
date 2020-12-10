@@ -89,6 +89,14 @@
                   "$ref": "#/components/schemas/AdV3"
                 }
               }
+            },
+            "links": {
+              "adIdLink": {
+                "operationId": "updateAdById",
+                "parameters": {
+                  "adId": "$response.body#/id"
+                }
+              }
             }
           },
           "401": {
