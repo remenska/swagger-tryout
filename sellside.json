@@ -179,7 +179,7 @@
           "Ads"
         ],
         "summary": "Get a list of ads with filter criteria",
-        "description": "returns a list of ads for the current user and the total size of the result set matching the filter criteria.",
+        "description": "Returns a list of ads for the current user and the total size of the result set matching the filter criteria.",
         "operationId": "getListOfAdsWithFilters",
         "parameters": [
           {
@@ -209,7 +209,7 @@
                 "description": "The required permission for this particular call",
                 "schema": {
                   "type": "string",
-                  "example": "get_ad"
+                  "example": "get_ads"
                 }
               }
             },
@@ -294,7 +294,7 @@
             "description": "The source URL of the image, where it will be downloaded from",
             "format": "base64url",
             "example": "https://example.nl/8228771/wit-met-stiksel.jpg",
-            "required": "true"
+            "required": true
           },
           "status": {
             "type": "string",
@@ -315,6 +315,7 @@
           },
           "links": {
             "type": "object",
+            "description": "A map of image URLs for different dimensions of the same image.",
             "additionalProperties": {
               "type": "string"
             },
@@ -324,6 +325,85 @@
             }
           }
         }
+      },
+      "AttributeValue": {
+        "properties": {
+          "schema": {
+            "oneOf": [
+              {
+                "type": "string",
+                "example": "zwart",
+                "maxLength": 512,
+                "description": "A single string value."
+              },
+              {
+                "type": "number",
+                "example":6,
+                "description": "A single number value."
+              },
+              {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "example": "zwart",
+                      "maxLength": 512,
+                      "description": "A single string value."
+                    },
+                    {
+                      "type": "number",
+                      "example":6,
+                      "description": "A single number value."
+                    },
+                  ],
+                },
+                "description": "A list of string or number values.",
+                "example": ["zwart","groen"]
+              }
+            ]
+          }
+        }
+      },
+      "UserAttribute": {
+        "externalDocs": {
+          "url": "http://ecg-icas.github.io/icas/doc/next/attributes.html#user-defined-attributes"
+        },
+        "type": "object",
+        "description": "User-defined attributes are the actual names and values provided by the user for a given ad. They contain any valid key/value combination as described below and are not limited by the category attributes. This means the user can determine not only the value of the attribute, but also the name of the key.",
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 32,
+            "example": "color",
+            "required": true
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 32,
+            "example": "kleur",
+            "required": true,
+            "description": "The label can contain the same value as the key."
+          },
+          "locale": {
+            "type": "string",
+            "format": "locale",
+            "description": "Specifies the language for the label and the value. Must be a valid locale string.",
+            "example": "en_US",
+            "required": true
+          },
+          "type": {
+            "description": "The type of the attribute. Can be one of STRING - a single string value, NUMBER - a single number value, or LIST - a list of string or number values",
+            "type": "string",
+            "enum": ["STRING", "NUMBER", "LIST"],
+            "example": "LIST",
+            "required": true
+          },
+          "value": {
+            "$ref": "#/components/schemas/AttributeValue"
+          }
+        }
+
       },
       "AdV2": {
         "type": "object",
@@ -565,8 +645,137 @@
             "type": "integer",
             "format": "int64",
             "nullable": true,
-            "description": "The daily budget for the ad. When this value is reached the ad will be paused for the rest of the day. The minimum value depends on the category. Maximum value cannot be higher than the totalBudget",
+            "description": "The daily budget for the ad,in cents. When this value is reached the ad will be paused for the rest of the day. The minimum value depends on the category. Maximum value cannot be higher than the totalBudget",
             "example": 50000
+          },
+          "spentBudget": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true,
+            "description": "The total amount of the budget that has been used so far, in cents."
+          },
+          "dailySpent": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true,
+            "description": "The budget spent for the ad since midnight, in cents. Only provided when the dailyBudget is set and larger than 0."
+          },
+          "salutation": {
+            "type": "string",
+            "enum": ["COMPANY", "MALE", "FEMALE", "FAMILY","UNKNOWN"],
+            "description": "The salutation as used in emails. Must be a valid salutation identifier from MALE, FEMALE, COMPANY or FAMILY",
+            "example": "COMPANY",
+            "required": true
+          },
+          "sellerName": {
+            "type": "string",
+            "maxLength": 60,
+            "required": true,
+            "example": "Mr. Smith",
+            "description": "Display name of the seller."
+          },
+          "phoneNumber": {
+            "maxLength": 32,
+            "description": "The phone number of the advertiser as international phone number format, or as a local phone number. 0900 and 0800 numbers are not allowed.",
+            "example": "+31207894561"
+          },
+          "allowContactByEmail": {
+            "type": "boolean",
+            "example": true,
+            "description": "Flag for allowing emails to be sent to the advertiser."
+          },
+          "allowPayPal": {
+            "deprecated": true,
+            "description": "Flag for allowing PayPal as a payment option.",
+            "example": false
+          },
+          "dateCreated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The ISO 8601 UTC date and time the ad was created.",
+            "readOnly": true,
+            "example": "2019-04-18T13:55:10Z"
+          },
+          "dateLastUpdated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The ISO 8601 UTC date and time the ad was last updated.",
+            "readOnly": true,
+            "example": "2020-08-05T07:49:14Z"
+          },
+          "dateDeleted": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The ISO 8601 UTC date and time the ad was deleted. Omitted if the ad is not deleted.",
+            "readOnly": true,
+            "example": "2020-08-05T07:49:14Z"
+          },
+          "postcode": {
+            "type": "string",
+            "description": "Must be an non empty string.",
+            "example": "1703GB",
+            "maxLength": 6,
+            "required": true
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The region in which the ad is placed. A long value from the region tree. Must be the id of a leaf region. Each ad belongs to one and only one region and region of an ad cannot be updated. This field can only set once during creation of an ad. This field is mandatory if the region field of category configuration is MANDATORY and optional if the region field is OPTIONAL. This field must be omitted if the region field of category configuration is DISABLED.",
+            "example": 10034535
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int",
+            "description": "Page number on which this ad is shown. Page number is highly volatile and might change very quickly depending on the performance of the ad.",
+            "readOnly": true,
+            "example": 2
+          },
+          "suggestedCpcForPageOne": {
+            "description": "Suggested CPC value in (euro/dollar) cents for this ad to be shown on page one. This value is very volatile and might change very quickly depending on the performance of the ad.",
+            "type": "integer",
+            "format": "int64",
+            "example": 15,
+            "readOnly": true
+          },
+          "links": {
+            "type": "object",
+            "description": "Provides various hypermedia URLs to access linked resources. Also contains a self link, which points to the current resource.",
+            "properties": {
+              "self": {
+                "type": "string",
+                "format": "url",
+                "example": "/api/sellside/ad/1235",
+                "description": "A self link which points to the current resource.",
+                "maxLength": 2048,
+                "readOnly": true
+              },
+              "category": {
+                "type": "integer",
+                "format": "int64",
+                "description": "The resource location for the category that this ad belongs to.",
+                "example": "/api/sellside/category/2353465",
+                "readOnly": true,
+                "maxLength": 2048
+              },
+              "url": {
+                "type": "string",
+                "format": "url",
+                "maxLength": 2048,
+                "description": "An external URL that is shown on the ad page. This must be a valid http(s) url.",
+                "example": "http://wwww.company.com/product"
+              },
+              "displayUrl": {
+                "description": "The text/url that will be displayed instead of the url in links.url.",
+                "type": "string",
+                "maxLength": 256,
+                "example": "Click here to buy this product"
+              }
+            }
+          },
+          "vendorId": {
+            "type": "string",
+            "description": "Any non-empty string, unique per customer. Can either be set when creating an ad or when updating an existing ad. However, once set, it can no longer be modified. When fetching an existing ad which does not have a vendorId, the field is omitted.",
+            "example": "vendor1245-1234"
           }
         }
       },
