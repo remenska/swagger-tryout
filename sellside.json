@@ -25,7 +25,11 @@
   ],
   "tags": [
     {
-      "name": "Ads"
+      "name": "Ads",
+      "description": "Operations related to ad entities.",
+      "externalDocs": {
+        "url": "http://ecg-icas.github.io/icas/doc/next/ads.html"
+      }
     },
     {
       "name": "Campaigns"
