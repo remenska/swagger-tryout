@@ -49,7 +49,7 @@
         "parameters": [
           {
             "name": "adid",
-            "in": "path",
+            "in": "query",
             "description": "ID of ad to return",
             "required": true,
             "schema": {
@@ -183,15 +183,41 @@
         "operationId": "getListOfAdsWithFilters",
         "parameters": [
           {
-            "name": "adid",
+            "name": "titleKeywords",
             "in": "query",
-            "description": "ID of ad to return",
-            "required": true,
+            "description": "Case-insensitive filter for a keyword in the title; will include only ads which contain the given keyword in their title.",
             "schema": {
-              "type": "integer",
-              "format": "int64",
-              "example": 1235
+              "type": "string",
+              "example": "fiets"
             }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filters the result set by the ad status. Should be a comma separated list of possible statuses ",
+            "schema": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/AdStatus"
+                  }
+                ]
+              }
+            },
+            "example": [
+              "ACTIVE"
+            ]
+          },
+          {
+            "name": "orderBy",
+            "in": "query",
+            "description": "Orders the result set by the given field. Default value is DATE_CREATED.",
+            "schema": {
+              "$ref": "#components/schemas/OrderBy"
+            },
+            "example": "DATE_CREATED"
           }
         ],
         "responses": {
@@ -454,6 +480,37 @@
           }
         }
       },
+      "AdStatus": {
+        "type": "string",
+        "required": true,
+        "description": "The user can set only one of the user controlled states ACTIVE, PAUSED or DELETED.",
+        "enum": [
+          "ACTIVE",
+          "PAUSED",
+          "BUDGET_REACHED",
+          "DAILY_LIMIT_REACHED",
+          "DELETED",
+          "DELETED_BY_CS",
+          "SUSPENDED_BY_CS"
+        ],
+        "example": "ACTIVE"
+      },
+      "OrderBy": {
+        "type": "string",
+        "description": "Orders the result set by the given field. Default value is DATE_CREATED.",
+        "enum": [
+          "DATE_CREATED",
+          "DATE_LAST_UPDATED",
+          "STATUS",
+          "CLICKS",
+          "TITLE",
+          "CPC",
+          "SPENT",
+          "REMAINING_BUDGET"
+        ],
+        "example": "DATE_CREATED",
+        "default": "DATE_CREATED"
+      },
       "AdV2": {
         "type": "object",
         "properties": {
@@ -499,19 +556,7 @@
             "deprecated": true
           },
           "status": {
-            "type": "string",
-            "required": true,
-            "description": "The user can set only one of the user controlled states ACTIVE, PAUSED or DELETED.",
-            "enum": [
-              "ACTIVE",
-              "PAUSED",
-              "BUDGET_REACHED",
-              "DAILY_LIMIT_REACHED",
-              "DELETED",
-              "DELETED_BY_CS",
-              "SUSPENDED_BY_CS"
-            ],
-            "example": "ACTIVE"
+            "$ref": "#/components/schemas/AdStatus"
           },
           "priceType": {
             "type": "string",
@@ -776,19 +821,7 @@
             "deprecated": true
           },
           "status": {
-            "type": "string",
-            "required": true,
-            "description": "The user can set only one of the user controlled states ACTIVE, PAUSED or DELETED.",
-            "enum": [
-              "ACTIVE",
-              "PAUSED",
-              "BUDGET_REACHED",
-              "DAILY_LIMIT_REACHED",
-              "DELETED",
-              "DELETED_BY_CS",
-              "SUSPENDED_BY_CS"
-            ],
-            "example": "ACTIVE"
+            "$ref": "#/components/schemas/AdStatus"
           },
           "statusReasons": {
             "type": "array",
