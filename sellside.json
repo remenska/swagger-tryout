@@ -358,11 +358,7 @@
               "type": "array",
               "uniqueItems": true,
               "items": {
-                "oneOf": [
-                  {
-                    "$ref": "#/components/schemas/AdStatus"
-                  }
-                ]
+                "$ref": "#/components/schemas/AdStatus"
               }
             },
             "example": [
@@ -1616,9 +1612,22 @@
               "type": "integer",
               "format": "int64",
               "example": 10
+            },
+            "displayValue": {
+              "type": "string",
+              "description": "Description of the circular area for geo-targeting. Only visible on your dashboard, it will never be shown to buyers.",
+              "example": "Amsterdam Area"
             }
           }
-        }
+        },
+        "example": [
+          {
+            "lat": 1.2345,
+            "lon": 123.456,
+            "radius": 10,
+            "displayValue": "Amsterdam Area"
+          }
+        ]
       },
       "RegionTargeting": {
         "type": "array",
